@@ -8,6 +8,8 @@
     @foreach (var product in Products)
     {
         <_IndividualProduct Product="@product" OnFavoriteSelected="FavoriteCountUpdate" OnSelection="LastSelectedUpdate">
+            <FirstFragment>#1</FirstFragment>
+            <SecondFragment>#2</SecondFragment>
         </_IndividualProduct>
     }
 </div>

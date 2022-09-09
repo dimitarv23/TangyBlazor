@@ -4,6 +4,8 @@
     <p>Add to Favorites <input type="checkbox" @onchange="FavoriteUpdated" /></p>
 
     Name: @Product.Name<br />
+    
+    RF from Parent: @FirstFragment @SecondFragment<br />
 
     Show Properties: <input type="checkbox" @bind="@Product.IsActive" /><br />
 
@@ -28,6 +30,12 @@
 
     [Parameter]
     public EventCallback<string> OnSelection { get; set; }
+
+    [Parameter]
+    public RenderFragment FirstFragment { get; set; }
+
+    [Parameter]
+    public RenderFragment SecondFragment { get; set; }
 
     private async Task FavoriteUpdated(ChangeEventArgs e)
     {
