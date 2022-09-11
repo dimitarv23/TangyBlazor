@@ -1,0 +1,45 @@
+﻿@page "/learnblazor/routing/{Parameter1}/{Parameter2}"
+@page "/learnblazor/routing/{Parameter1}"
+@page "/learnblazor/routing"
+@page "/routing"
+
+@inject NavigationManager _NavigationManager
+
+<h3>Routing</h3>
+
+<h4>URL Parameters:</h4>
+<h5>Parameter 1: @(string.IsNullOrWhiteSpace(Parameter1) ? "None" : Parameter1)</h5>
+<h5>Parameter 2: @(string.IsNullOrWhiteSpace(Parameter2) ? "None" : Parameter2)</h5>
+
+@*<a href="routing?Param1=Tangy&Param2=Blazor" class="btn btn-primary">Navigate to query parameter</a>*@
+<button @onclick="NavigateToQueryParam" class="btn btn-primary">Navigate to query parameter</button>
+<button class="btn btn-success" @onclick="LoadParameters">Load parameters</button>
+<br />
+
+<h3>Query String Parameters:</h3>
+<h5>Parameter 1: @(string.IsNullOrWhiteSpace(Param1) ? "None" : Param1)</h5>
+<h5>Parameter 2: @(string.IsNullOrWhiteSpace(Param2) ? "None" : Param2)</h5>
+
+@code {
+    [Parameter]
+    public string Parameter1 { get; set; }
+    [Parameter]
+    public string Parameter2 { get; set; }
+
+    public string Param1 { get; set; }
+    public string Param2 { get; set; }
+
+    private void LoadParameters()
+    {
+        var absoluteUri = new Uri(_NavigationManager.Uri);
+        var queryParam = System.Web.HttpUtility.ParseQueryString(absoluteUri.Query);
+
+        Param1 = queryParam["Param1"];
+        Param2 = queryParam["Param2"];
+    }
+
+    private void NavigateToQueryParam()
+    {
+        _NavigationManager.NavigateTo("routing?Param1=Tangy&Param2=Blazor");
+    }
+}
