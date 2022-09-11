@@ -1,0 +1,31 @@
+﻿<h3 class="mb-3 mt-3">Lifecycle Child</h3>
+
+<div class="row">
+    @foreach (var item in EventType)
+    {
+        <p class="m-2">@item</p>
+        <hr />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int CountValue { get; set; }
+
+    List<string> EventType = new List<string>();
+
+    protected override void OnInitialized()
+    {
+        EventType.Add("[CHILD] OnInitialized is called");
+    }
+
+    protected override void OnParametersSet()
+    {
+        EventType.Add("[CHILD] OnParametersSet is called");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        EventType.Add("[CHILD] OnAfterRender is called");
+    }
+}

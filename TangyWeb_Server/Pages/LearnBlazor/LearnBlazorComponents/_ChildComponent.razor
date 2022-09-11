@@ -1,4 +1,6 @@
-﻿<div>
+﻿@inject IJSRuntime _JSRuntime
+
+<div>
     <div class="alert alert-info">
         @Title
     </div>
@@ -23,7 +25,7 @@
 
     <button class="btn btn-danger" @onclick="OnButtonClick">
         Button to be clicked
-    </button> 
+    </button>
 
     <_GrandChildComponent MessageFromParent="This message is from parent (the child component)">
     </_GrandChildComponent>
@@ -41,4 +43,9 @@
 
     [Parameter]
     public EventCallback OnButtonClick { get; set; }
+
+    public async Task SweetAlertSuccess()
+    {
+        await _JSRuntime.InvokeVoidAsync("ShowSwal", "success", "Operation was successful!");
+    }
 }
