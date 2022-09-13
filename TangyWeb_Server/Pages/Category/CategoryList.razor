@@ -1,0 +1,80 @@
+﻿@page "/category"
+@inject ICategoryRepository _categoryRepository
+
+<div class="row">
+    <div class="col-6">
+        <h4 class="card-title text-primary">
+            Category List
+        </h4>
+    </div>
+
+    <div class="col-4 offset-2">
+        <a href="category/create" class="btn btn-primary form-control">
+            Add new Category
+        </a>
+    </div>
+
+    <div class="col-12">
+        @if (Categories.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var obj in Categories)
+                    {
+                        <tr>
+                            <td>@obj.Name</td>
+
+                            <td>
+                                <NavLink href="" class="btn btn-primary">
+                                    Edit
+                                </NavLink>
+                            </td>
+
+                            <td>
+                                <NavLink href="" class="btn btn-primary">
+                                    Delete
+                                </NavLink>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            @if (IsLoading)
+            {
+                <div class="text-center">
+                    <img src="/images/loading.gif" />
+                </div>
+            }
+            else
+            {
+                <p>No records found.</p>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
+    public bool IsLoading { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(LoadCategories);
+    }
+
+    private void LoadCategories()
+    {
+        Categories = _categoryRepository.GetAll();
+        IsLoading = false;
+    }
+}
