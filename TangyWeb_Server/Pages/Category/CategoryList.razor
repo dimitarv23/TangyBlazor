@@ -1,7 +1,12 @@
 ﻿@page "/category"
-@inject ICategoryRepository _categoryRepository
 
-<div class="row">
+@inject ICategoryRepository _categoryRepository
+@inject IJSRuntime _jsRuntime
+
+<_DeleteConfirmation IsParentComponentProcessing="IsLoading" ConfirmationChanged="ConfirmDelete_Click">
+</_DeleteConfirmation>
+
+<div class="row mt-4">
     <div class="col-6">
         <h4 class="card-title text-primary">
             Category List
@@ -10,11 +15,11 @@
 
     <div class="col-4 offset-2">
         <a href="category/create" class="btn btn-primary form-control">
-            Add new Category
+            Add New Category
         </a>
     </div>
 
-    <div class="col-12">
+    <div class="col-12 p-3">
         @if (Categories.Any())
         {
             <table class="table table-bordered">
@@ -32,13 +37,11 @@
                             <td>@obj.Name</td>
 
                             <td>
-                                <NavLink href="" class="btn btn-primary">
+                                <NavLink href="@($"category/edit/{obj.ID}")" class="btn btn-primary">
                                     Edit
                                 </NavLink>
-                            </td>
 
-                            <td>
-                                <NavLink href="" class="btn btn-primary">
+                                <NavLink class="btn btn-danger" @onclick="() => HandleDelete(obj.ID)">
                                     Delete
                                 </NavLink>
                             </td>
@@ -65,16 +68,46 @@
 
 @code {
     private IEnumerable<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
-    public bool IsLoading { get; set; } = true;
+    public bool IsLoading { get; set; }
+    private int DeleteCategoryID { get; set; } = 0;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Task.Run(LoadCategories);
+        if (firstRender)
+        {
+            await LoadCategories();
+        }
     }
 
-    private void LoadCategories()
+    private async Task LoadCategories()
     {
-        Categories = _categoryRepository.GetAll();
+        IsLoading = true;
+        StateHasChanged();
+
+        Categories = await _categoryRepository.GetAll();
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void HandleDelete(int id)
+    {
+        DeleteCategoryID = id;
+        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    public async Task ConfirmDelete_Click(bool isConfirmed)
+    {
+        IsLoading = true;
+
+        if (isConfirmed && DeleteCategoryID != 0)
+        {
+            //delete
+            await _categoryRepository.Delete(DeleteCategoryID);
+            await LoadCategories();
+            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+        }
+
         IsLoading = false;
     }
 }

@@ -1,4 +1,6 @@
 ﻿@page "/category/create"
+@page "/category/edit/{id:int}"
+
 @inject ICategoryRepository _categoryRepository
 @inject NavigationManager _navigationManager
 
@@ -8,37 +10,90 @@
     </h3>
 
     <div class="col-10">
-        <EditForm Model="Category" OnValidSubmit="UpsertCategory">
-            <DataAnnotationsValidator />
-            @*<ValidationSummary />*@
-
-            <div class="form-group">
-                <label>Name</label>
-
-                <InputText class="form-control" @bind-Value="Category.Name" />
-                <ValidationMessage For="() => Category.Name"></ValidationMessage>
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <img src="/images/loading.gif" />
             </div>
+        }
+        else
+        {
+            <EditForm Model="Category" OnValidSubmit="UpsertCategory">
+                <DataAnnotationsValidator />
 
-            <div class="form-group py-2">
-                <button class="btn btn-primary">
-                    @Action
-                </button>
+                <div class="form-group">
+                    <label>Name</label>
 
-                <NavLink href="category" class="btn btn-secondary">
-                    Back to List
-                </NavLink>
-            </div>
-        </EditForm>
+                    <InputText class="form-control" @bind-Value="Category.Name" />
+                    <ValidationMessage For="() => Category.Name"></ValidationMessage>
+                </div>
+
+                <div class="form-group py-2">
+                    <button class="btn btn-primary">
+                        @Action
+                    </button>
+
+                    <NavLink href="category" class="btn btn-secondary">
+                        Back to List
+                    </NavLink>
+                </div>
+            </EditForm>
+        }
     </div>
 </div>
 
 @code {
-    private CategoryDTO Category { get; set; } = new CategoryDTO();
-    private string Action { get; set; } = "Create";
+    [Parameter]
+    public int ID { get; set; }
 
-    private void UpsertCategory()
+    private CategoryDTO Category { get; set; } = new CategoryDTO();
+    private string? Action { get; set; }
+    public bool IsLoading { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _categoryRepository.Create(Category);
+        if (firstRender)
+        {
+            if (ID == 0)
+            {
+                //create
+                IsLoading = false;
+                Action = "Create";
+            }
+            else
+            {
+                //update
+                Action = "Update";
+                await LoadCategories();
+            }
+        }
+
+    }
+
+    private async Task LoadCategories()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        Category = await _categoryRepository.Get(ID);
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpsertCategory()
+    {
+        if (Category.ID == 0)
+        {
+            //create
+            await _categoryRepository.Create(Category);
+        }
+        else
+        {
+            //edit
+            await _categoryRepository.Update(Category);
+        }
+
         _navigationManager.NavigateTo("category");
     }
 }

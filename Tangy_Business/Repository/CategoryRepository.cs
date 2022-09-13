@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,20 +23,20 @@ namespace Tangy_Business.Repository
             _mapper = mapper;
         }
 
-        public CategoryDTO Create(CategoryDTO objDTO)
+        public async Task<CategoryDTO> Create(CategoryDTO objDTO)
         {
             var obj = _mapper.Map<CategoryDTO, Category>(objDTO);
             obj.CreateDate = DateTime.Now;
 
             _db.Categories.Add(obj);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
 
             return _mapper.Map<Category, CategoryDTO>(obj);
         }
 
-        public CategoryDTO Get(int id)
+        public async Task<CategoryDTO> Get(int id)
         {
-            var obj = _db.Categories.FirstOrDefault(u => u.ID == id);
+            var obj = await _db.Categories.FirstOrDefaultAsync(u => u.ID == id);
 
             if (obj != null)
             {
@@ -45,20 +46,20 @@ namespace Tangy_Business.Repository
             return new CategoryDTO();
         }
 
-        public IEnumerable<CategoryDTO> GetAll()
+        public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
             return _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(_db.Categories);
         }
 
-        public CategoryDTO Update(CategoryDTO objDTO)
+        public async Task<CategoryDTO> Update(CategoryDTO objDTO)
         {
-            var objFromDB = _db.Categories.FirstOrDefault(u => u.ID == objDTO.ID);
+            var objFromDB = await _db.Categories.FirstOrDefaultAsync(u => u.ID == objDTO.ID);
 
             if (objFromDB != null)
             {
                 objFromDB.Name = objDTO.Name;
                 _db.Categories.Update(objFromDB);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
 
                 return _mapper.Map<Category, CategoryDTO>(objFromDB);
             }
@@ -66,14 +67,14 @@ namespace Tangy_Business.Repository
             return objDTO;
         }
 
-        public int Delete(int id)
+        public async Task<int> Delete(int id)
         {
-            var obj = _db.Categories.FirstOrDefault(u => u.ID == id);
+            var obj = await _db.Categories.FirstOrDefaultAsync(u => u.ID == id);
 
             if (obj != null)
             {
                 _db.Categories.Remove(obj);
-                return _db.SaveChanges();
+                return await _db.SaveChangesAsync();
             }
 
             return 0;
